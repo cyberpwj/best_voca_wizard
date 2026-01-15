@@ -1,0 +1,166 @@
+/* ... (Previous styles remain) ... */
+
+/* Paper Styles (Screen Preview) */
+.paper {
+    background: white;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    background-color: white;
+    /* Default Portrait */
+    width: 210mm;
+    min-height: 297mm;
+    padding: 15mm;
+    box-sizing: border-box;
+    position: relative;
+}
+
+.paper.landscape {
+    width: 297mm;
+    height: 210mm;
+    /* Fixed height for A4 Landscape */
+    padding: 15mm;
+    display: flex;
+    /* Flex container for 2-up */
+    gap: 15mm;
+    /* Gap between two sheets */
+}
+
+/* 2-up Layout Containers */
+.exam-half {
+    flex: 1;
+    height: 100%;
+    border: 1px solid #eee;
+    /* Light guide border */
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+}
+
+.exam-half-header {
+    border-bottom: 2px solid #000;
+    margin-bottom: 10px;
+    padding-bottom: 5px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+}
+
+.exam-half-content {
+    flex: 1;
+    column-count: 2;
+    /* Mini 2-column inside half page */
+    column-gap: 20px;
+    font-size: 11px;
+    /* Smaller font for condensed layout */
+}
+
+.exam-half-content .question-item {
+    margin-bottom: 8px;
+    padding-bottom: 2px;
+}
+
+.middle-line {
+    position: absolute;
+    left: 50%;
+    top: 5%;
+    bottom: 5%;
+    border-left: 1px dashed #ccc;
+}
+
+/* Question List (Portrait) */
+.question-list {
+    column-count: 2;
+    column-gap: 40px;
+}
+
+.question-item {
+    break-inside: avoid;
+    margin-bottom: 15px;
+    border-bottom: 1px dotted #ccc;
+    padding-bottom: 5px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+}
+
+.q-word {
+    font-weight: bold;
+}
+
+.q-blank {
+    flex: 1;
+    border-bottom: 1px solid #ccc;
+    margin-left: 10px;
+}
+
+/* Cover Page */
+.cover-page {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border: 3px double #000;
+}
+
+.academy-logo-img {
+    max-width: 200px;
+    max-height: 200px;
+    margin-bottom: 40px;
+}
+
+.cover-title {
+    font-size: 36px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.cover-info {
+    font-size: 16px;
+    text-align: center;
+    line-height: 2;
+}
+
+/* Print Styles */
+@media print {
+    body {
+        height: auto;
+        overflow: visible;
+        background: white;
+    }
+
+    .app-container,
+    .sidebar {
+        display: none !important;
+    }
+
+    #printable-area {
+        display: block !important;
+    }
+
+    .preview-area {
+        display: none;
+    }
+
+    .paper {
+        margin: 0;
+        box-shadow: none;
+        page-break-after: always;
+        border: none;
+        /* Remove guide borders in print */
+    }
+
+    /* Force Landscape Page via CSS (Chrome/Edge support) */
+    @page {
+        size: auto;
+        margin: 0mm;
+    }
+
+    /* If body has landscape class */
+    body.print-landscape .paper {
+        width: 100%;
+        /* Fill the landscape page */
+        height: 100vh;
+        transform: none;
+    }
+}

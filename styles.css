@@ -1,0 +1,463 @@
+/* Voca Builder Styles - v3.5 (A4 Layout Fix + Table + Print Buttons) */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;600;800&display=swap');
+
+:root {
+    --primary: #4338ca;
+    --border: #e2e8f0;
+    --bg-app: #f8fafc;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body,
+html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: 'Noto Sans KR', sans-serif;
+    background-color: var(--bg-app);
+}
+
+.app-container {
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* SIDEBAR */
+.sidebar {
+    width: 320px;
+    background: white;
+    border-right: 1px solid var(--border);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    overflow-y: auto;
+    z-index: 100;
+}
+
+/* PREVIEW AREA */
+.preview-area {
+    flex: 1;
+    background: #cbd5e1;
+    padding: 40px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
+}
+
+/* CONTROLS */
+.control-group {
+    background: #f1f5f9;
+    padding: 15px;
+    border-radius: 8px;
+}
+
+.control-group label {
+    display: block;
+    font-weight: 700;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+    color: #334155;
+}
+
+input,
+select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+}
+
+button.primary-btn {
+    background: var(--primary);
+    color: white;
+    font-weight: bold;
+    padding: 12px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    width: 100%;
+}
+
+button.primary-btn:hover {
+    background: #3730a3;
+}
+
+/* SHEET LAYOUT (A4 Landscape) */
+.sheet-container {
+    background: white;
+    width: 296mm;
+    height: 209mm;
+    padding: 10mm;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    display: flex;
+    position: relative;
+    margin: 0 auto;
+}
+
+.sheet-divider {
+    width: 0px;
+    border-left: 1px dashed #94a3b8;
+    height: 100%;
+    margin: 0 5mm;
+}
+
+/* EXAM PANELS */
+.exam-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+}
+
+/* Header */
+.panel-header {
+    border-bottom: 2px solid #0f172a;
+    padding-bottom: 5px;
+    margin-bottom: 5px;
+}
+
+.header-top {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    height: 35px;
+    margin-bottom: 5px;
+}
+
+.mini-logo {
+    height: 30px;
+    object-fit: contain;
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.panel-title {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 800;
+    text-align: center;
+}
+
+.header-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    color: #334155;
+    font-weight: 600;
+}
+
+/* Body (Table Style) */
+.panel-body {
+    flex: 1;
+    display: flex;
+    gap: 3mm;
+    margin-top: 5px;
+    border-top: 2px solid #0f172a;
+    border-bottom: 2px solid #0f172a;
+}
+
+.panel-sub-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Question Item */
+.q-item {
+    display: flex;
+    align-items: center;
+    border-bottom: 1px dotted #94a3b8;
+    height: 100%;
+    font-size: 11px;
+}
+
+.q-num {
+    width: 25px;
+    height: 100%;
+    font-weight: 700;
+    color: #64748b;
+    font-size: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f8fafc;
+    border-right: 1px solid #cbd5e1;
+}
+
+.q-word-box {
+    width: 35%;
+    height: 100%;
+    padding: 0 5px;
+    display: flex;
+    align-items: center;
+    border-right: 1px solid #cbd5e1;
+    overflow: hidden;
+}
+
+.q-word {
+    font-weight: 700;
+    color: #0f172a;
+    font-size: 12px;
+}
+
+.q-mean-q {
+    font-size: 11px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: #334155;
+}
+
+.q-word-ans {
+    font-weight: 700;
+    color: #dc2626;
+    font-size: 12px;
+}
+
+.q-input-box {
+    flex: 1;
+    height: 100%;
+    padding: 0 5px;
+    display: flex;
+    align-items: center;
+}
+
+.q-input-line {
+    width: 100%;
+}
+
+.q-mean-ans {
+    font-size: 10px;
+    color: #475569;
+}
+
+.q-content-empty {
+    width: 100%;
+}
+
+.panel-footer {
+    text-align: center;
+    font-size: 9px;
+    padding-top: 5px;
+    margin-top: 2px;
+    color: #64748b;
+}
+
+/* COVER PAGE */
+.cover-container {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    border: 5px double #0f172a;
+}
+
+.cover-left {
+    flex: 1;
+    border-right: 1px dashed #ccc;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: #fdfdfd;
+}
+
+.cover-img-wrapper {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+}
+
+.cover-book-img {
+    max-width: 50%;
+    max-height: 50%;
+    object-fit: contain;
+    box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.2);
+    border: 1px solid #ddd;
+}
+
+.cover-test-type {
+    margin-top: 20px;
+    font-size: 24px;
+    font-weight: 800;
+    color: #333;
+    margin-bottom: 50px;
+    /* Give some space from bottom */
+}
+
+.cover-right {
+    flex: 1;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+}
+
+.cover-title-group {
+    text-align: center;
+    margin-top: 30px;
+    width: 100%;
+}
+
+.cover-main-title {
+    font-size: 36px;
+    font-weight: 900;
+    line-height: 1.2;
+    margin-bottom: 15px;
+    color: #0f172a;
+}
+
+.cover-sub-title {
+    font-size: 16px;
+    color: #666;
+    font-weight: 600;
+}
+
+/* Center Content (Answer Key) */
+.cover-center-content {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+.cover-answer-mark {
+    font-size: 48px;
+    font-weight: 900;
+    color: #dc2626;
+    letter-spacing: 10px;
+    border: 3px solid #dc2626;
+    padding: 20px 40px;
+    border-radius: 8px;
+}
+
+/* Bottom Content (Info Box) */
+.cover-bottom-content {
+    margin-top: auto;
+    /* Push to bottom */
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+    /* Align box to right */
+    margin-bottom: 20px;
+}
+
+.cover-info-box {
+    width: 300px;
+    border: 2px solid #333;
+    padding: 15px;
+    background: #fff;
+    box-shadow: 3px 3px 0px rgba(0, 0, 0, 0.1);
+    font-size: 14px;
+}
+
+.cover-row {
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px dashed #ccc;
+    padding: 8px 0;
+    font-weight: bold;
+}
+
+.cover-row:last-child {
+    border-bottom: none;
+}
+
+.cover-logo-bottom {
+    max-width: 180px;
+    max-height: 60px;
+    object-fit: contain;
+    align-self: flex-end;
+    /* Right align */
+}
+
+/* PRINT SETTINGS */
+.no-print {}
+
+@media print {
+    @page {
+        size: A4 landscape;
+        margin: 0;
+    }
+
+    html,
+    body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        background: white;
+    }
+
+    .sheet-container {
+        width: 297mm;
+        /* Reduce height slightly (210mm -> 208mm) to prevent overflow causing blank page */
+        height: 208mm;
+        margin: 0;
+        box-shadow: none;
+        page-break-after: always;
+        padding: 5mm 10mm;
+        overflow: hidden;
+        /* Clip any potential overflow */
+    }
+
+    .sidebar,
+    .no-print {
+        display: none !important;
+    }
+
+    .app-container,
+    .preview-area {
+        display: block;
+        height: auto;
+        overflow: visible;
+        padding: 0 !important;
+        margin: 0 !important;
+        background: transparent !important;
+    }
+
+    .section-exam,
+    .section-answer,
+    .cover-page-exam,
+    .cover-page-answer {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    /* PRINT SEPARATION LOGIC */
+    body.printing-test .section-answer,
+    body.printing-test .answer-divider,
+    body.printing-test .cover-page-answer {
+        display: none !important;
+    }
+
+    body.printing-answer .section-exam,
+    body.printing-answer .answer-divider,
+    body.printing-answer .cover-page-exam {
+        display: none !important;
+    }
+
+    /* Remove page break from the last sheet of the visible section */
+    .section-exam .sheet-container:last-child,
+    .section-answer .sheet-container:last-child,
+    .cover-page-exam:last-child,
+    .cover-page-answer:last-child {
+        page-break-after: auto !important;
+    }
+}

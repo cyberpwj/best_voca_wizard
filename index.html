@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voca Builder - 단어 시험지 제작 프로그램</title>
+    <!-- SheetJS for Excel Parsing -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+        }
+
+        .modal {
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            width: 400px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal h3 {
+            margin-top: 0;
+            color: var(--primary);
+        }
+
+        .modal label {
+            display: block;
+            margin-top: 10px;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+
+        .modal input {
+            width: 100%;
+            margin-top: 5px;
+        }
+
+        .modal-actions {
+            margin-top: 20px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .cancel-btn {
+            background: #ccc;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .book-control-row {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+            width: 100%;
+        }
+
+        /* Updated Button Styles for Full Row */
+        .icon-btn {
+            flex: 1;
+            /* Distribute space evenly */
+            height: 32px;
+            border: none;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            /* Space between icon and text */
+            font-size: 13px;
+            color: white;
+        }
+
+        .add-btn {
+            background: #10b981;
+        }
+
+        .edit-btn {
+            background: #f59e0b;
+        }
+
+        .del-btn {
+            background: #ef4444;
+        }
+
+        /* Hover Effects */
+        .add-btn:hover {
+            background: #059669;
+        }
+
+        .edit-btn:hover {
+            background: #d97706;
+        }
+
+        .del-btn:hover {
+            background: #dc2626;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <h2 style="margin:0 0 20px 0; color:var(--primary);">
+                <span style="font-size:0.8em; color:#333;">BestEdu English</span><br>Voca Builder
+            </h2>
+
+            <!-- Book Selection & Management -->
+            <div class="control-group">
+                <label>📚 단어장 선택</label>
+                <!-- Full Width Select -->
+                <select id="book-select" style="margin-bottom:8px; width:100%; font-size:14px; padding:8px;">
+                    <option value="">선택하세요</option>
+                </select>
+
+                <!-- Buttons Below -->
+                <div class="book-control-row">
+                    <button id="add-book-btn" class="icon-btn add-btn" title="새 단어장 추가">➕ 추가</button>
+                    <button id="edit-book-btn" class="icon-btn edit-btn" title="선택한 단어장 수정">✎ 수정</button>
+                    <button id="del-book-btn" class="icon-btn del-btn" title="선택한 단어장 삭제">🗑 삭제</button>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label>📑 Unit 범위</label>
+                <div style="display:flex; gap:5px;">
+                    <input type="number" id="unit-start" placeholder="Start">
+                    <input type="number" id="unit-end" placeholder="End">
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label>🎲 모드 선택</label>
+                <select id="exam-mode">
+                    <option value="range">범위 순서대로 (권장)</option>
+                    <option value="random">무작위 추출</option>
+                </select>
+                <input type="number" id="random-count" placeholder="무작위 개수 (기본 80)" style="margin-top:5px;">
+            </div>
+
+            <div class="control-group">
+                <label>📝 시험 유형</label>
+                <div style="display:flex; gap:10px;">
+                    <label style="font-weight:400;"><input type="radio" name="test-type" value="meaning" checked> 뜻
+                        쓰기</label>
+                    <label style="font-weight:400;"><input type="radio" name="test-type" value="spelling"> 스펠링</label>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label>🎨 표지 옵션</label>
+                <label style="font-weight:600; display:block; margin-bottom:5px; font-size:0.9em;">
+                    <input type="checkbox" id="use-cover" checked> 표지 생성하기
+                </label>
+                <p style="font-size:11px; color:#666; margin-top:5px;">
+                    * 로고: BestEdu English (자동)<br>
+                    * 표지 이미지: 좌측 배치
+                </p>
+            </div>
+
+            <button id="generate-btn" class="primary-btn">시험지 생성</button>
+            <!-- Print Buttons Split -->
+            <div style="display:flex; gap:10px; margin-top:10px;">
+                <button id="print-test-btn" class="primary-btn" style="flex:1; background:#4f46e5;">📄 시험지 인쇄</button>
+                <button id="print-answer-btn" class="primary-btn" style="flex:1; background:#f97316;">✅ 정답지 인쇄</button>
+            </div>
+
+            <hr style="border:0; border-top:1px dashed #ccc; margin: 20px 0;">
+            <button id="export-data-btn" class="primary-btn" style="background:#475569; font-size:0.9em;">💾 데이터 저장
+                (공유용)</button>
+        </aside>
+
+        <!-- Main Preview Area -->
+        <main class="preview-area" id="preview-area">
+            <div style="text-align:center; color:#64748b; margin-top:100px;">
+                좌측 메뉴에서 단어장과 범위를 선택하고<br>
+                [시험지 생성] 버튼을 눌러주세요.
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal for Adding/Editing Book -->
+    <div id="add-book-modal" class="modal-overlay">
+        <div class="modal">
+            <h3 id="modal-title">단어장 추가 (Excel)</h3>
+
+            <label>단어장 이름</label>
+            <input type="text" id="new-book-title" placeholder="예: 중등 필수 영단어">
+
+            <label>표지 이미지 파일명</label>
+            <p style="font-size:11px; color:#666; margin:2px 0;">* 이미지를 'images' 폴더에 넣고 파일명만 입력하세요.</p>
+            <input type="text" id="new-book-cover" placeholder="예: my_book_cover.jpg">
+
+            <label>단어 데이터 (Excel)</label>
+            <p style="font-size:11px; color:#666; margin:2px 0;">컬럼: Day(Unit) | 영어 | 한글</p>
+            <p style="font-size:11px; color:#999;" id="edit-file-note"></p>
+            <input type="file" id="new-book-file" accept=".xlsx, .xls">
+
+            <div class="modal-actions">
+                <button id="close-modal-btn" class="cancel-btn">취소</button>
+                <button id="save-book-btn" class="primary-btn" style="width: auto; padding: 8px 20px;">저장하기</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="data_loader.js"></script>
+    <script src="app.js"></script>
+</body>
+
+</html>
