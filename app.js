@@ -626,4 +626,69 @@ function getUnitData(bookId, unitNum){ const book=VOCAB_DATA[bookId]; if(!book||
         `;
         return page;
     }
+
+    // === MOBILE RESPONSIVE LOGIC ===
+    const mobileToggleBtn = document.getElementById('mobile-toggle-btn');
+    const sidebar = document.getElementById('sidebar');
+
+    if (mobileToggleBtn) {
+        mobileToggleBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('active');
+            mobileToggleBtn.textContent = sidebar.classList.contains('active') ? '설정 닫기 ▲' : '설정 열기 ▼';
+        });
+    }
+
+    // Auto-Scale Sheets for Mobile
+    function fitSheetsToScreen() {
+        const sheets = document.querySelectorAll('.sheet-container');
+        if (sheets.length === 0) return;
+
+        const previewArea = document.getElementById('preview-area');
+        if (!previewArea) return;
+
+        // Subtract padding (20px left/right approx)
+        const containerWidth = previewArea.clientWidth - 20;
+
+        // Base width of A4 Sheet defined in CSS (296mm ~ 1118px)
+        // We use offsetWidth of the first sheet to get the exact rendered pixel width
+        const baseWidth = sheets[0].offsetWidth || 1118;
+
+        if (containerWidth < baseWidth) {
+            const scale = containerWidth / baseWidth;
+            sheets.forEach(sheet => {
+                sheet.style.transform = `scale(${scale})`;
+                // Compensate for the empty space caused by scaling
+                // Height reduces as well
+                const heightReduction = sheet.offsetHeight * (1 - scale);
+                sheet.style.marginBottom = `-${heightReduction}px`;
+                // Width reduction compensation (centering effectively)
+                // Since Transform Origin is Top Left, we don't need margin-left adj if we want left align.
+            });
+        } else {
+            // Reset
+            sheets.forEach(sheet => {
+                sheet.style.transform = 'none';
+                sheet.style.marginBottom = '30px'; // Default bottom margin
+            });
+        }
+    }
+
+    // Call on resize
+    window.addEventListener('resize', fitSheetsToScreen);
+
+    // Call fitSheetsToScreen after generation
+    // Instead of replacing the handler, we just add another one that runs after.
+    // Since JS event listeners run in order, we can just add a new click listener.
+    generateBtn.addEventListener('click', () => {
+        // Mobile: Close sidebar after generating
+        if (window.innerWidth <= 1024) {
+            if (sidebar) sidebar.classList.remove('active');
+            if (mobileToggleBtn) mobileToggleBtn.textContent = '설정 열기 ▼';
+        }
+        // Apply scaling
+        setTimeout(fitSheetsToScreen, 100);
+    });
+
+    // Initial call
+    fitSheetsToScreen();
 });

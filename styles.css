@@ -461,3 +461,64 @@ button.primary-btn:hover {
         page-break-after: auto !important;
     }
 }
+
+/* === MOBILE RESPONSIVE === */
+.mobile-header {
+    display: none;
+    background: white;
+    padding: 15px;
+    border-bottom: 1px solid var(--border);
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 200;
+}
+
+#mobile-toggle-btn {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 4px;
+    font-weight: bold;
+}
+
+@media screen and (max-width: 1024px) {
+    .app-container {
+        flex-direction: column;
+        height: auto;
+        overflow-y: auto;
+        /* Scroll whole page on mobile */
+    }
+
+    .mobile-header {
+        display: flex;
+    }
+
+    .sidebar {
+        width: 100%;
+        height: auto;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+        display: none;
+        /* Hidden by default on mobile */
+    }
+
+    .sidebar.active {
+        display: flex;
+    }
+
+    .preview-area {
+        width: 100%;
+        padding: 20px 10px;
+        overflow-x: hidden;
+        min-height: 500px;
+    }
+
+    /* Scale the sheet to fit screen */
+    .sheet-container {
+        transform-origin: top left;
+        /* Scale will be handled by JS */
+    }
+}
