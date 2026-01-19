@@ -512,13 +512,18 @@ button.primary-btn:hover {
     .preview-area {
         width: 100%;
         padding: 20px 10px;
-        overflow-x: hidden;
+        overflow-x: auto;
+        /* Changed to auto to allow scrolling if scaling fails slightly */
         min-height: 500px;
+        align-items: flex-start;
+        /* Ensure items start from left so transform origin works */
     }
 
     /* Scale the sheet to fit screen */
     .sheet-container {
         transform-origin: top left;
+        margin-left: auto;
+        margin-right: auto;
         /* Scale will be handled by JS */
     }
 }
