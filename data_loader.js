@@ -1,5 +1,5 @@
 // Voca Builder Data File
-// Exported on 1/19/2026, 5:25:36 PM
+// Exported on 1/15/2026, 4:28:56 PM
 
 const VOCAB_DATA = {
     "UserBook_1768461609896": {
@@ -33165,22 +33165,6 @@ const VOCAB_DATA = {
         }
     }
 };
-
-const VOCAB_TEACHERS_DATA = [
-    "Grey",
-    "Jun",
-    "Daniel",
-    "Rooney",
-    "Steve",
-    "Nick",
-    "Sunny",
-    "Alice",
-    "Eunice",
-    "Jessica",
-    "Yoon",
-    "Sophia",
-    "Joy"
-];
 
 function getBooks(){ return Object.keys(VOCAB_DATA).map(k=>({id:k, title:VOCAB_DATA[k].title, maxUnit:VOCAB_DATA[k].units, coverImage:VOCAB_DATA[k].coverImage})); }
 function getUnitData(bookId, unitNum){ const book=VOCAB_DATA[bookId]; if(!book||!book.data[unitNum])return[]; return book.data[unitNum]; }
