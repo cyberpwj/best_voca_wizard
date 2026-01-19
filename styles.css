@@ -409,15 +409,19 @@ button.primary-btn:hover {
         width: 297mm;
         /* Reduce height slightly (210mm -> 208mm) to prevent overflow causing blank page */
         height: 208mm;
-        margin: 0;
+        margin: 0 !important;
         box-shadow: none;
         page-break-after: always;
         padding: 5mm 10mm;
         overflow: hidden;
         /* Clip any potential overflow */
+        /* Reset JS scaling for print */
+        transform: none !important;
+        margin-bottom: 0 !important;
     }
 
     .sidebar,
+    .mobile-header,
     .no-print {
         display: none !important;
     }
