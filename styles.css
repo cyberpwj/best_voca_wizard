@@ -411,8 +411,8 @@ button.primary-btn:hover {
 
     .sheet-container {
         width: 297mm;
-        /* Safe height to avoid triggering a new page due to tiny overflows or browser rendering quirks */
-        height: 209mm;
+        /* Safe height to avoid triggering a new page due to tiny overflows */
+        height: 195mm;
         margin: 0 !important;
         box-shadow: none;
         page-break-after: always;
@@ -422,7 +422,6 @@ button.primary-btn:hover {
         transform: none !important;
         margin-bottom: 0 !important;
         border: none !important;
-        /* Ensure no borders add up */
     }
 
     .sidebar,
@@ -449,17 +448,35 @@ button.primary-btn:hover {
         padding: 0 !important;
     }
 
-    /* PRINT SEPARATION LOGIC */
+    /* PRINT SEPARATION LOGIC - STRICT */
     body.printing-test .section-answer,
     body.printing-test .answer-divider,
-    body.printing-test .cover-page-answer {
+    body.printing-test .cover-page-answer,
+    body.printing-test .section-answer *,
+    body.printing-test .cover-page-answer * {
         display: none !important;
+        height: 0 !important;
+        width: 0 !important;
+        overflow: hidden !important;
+        visibility: hidden !important;
+        position: absolute !important;
+        top: -9999px !important;
+        left: -9999px !important;
     }
 
     body.printing-answer .section-exam,
     body.printing-answer .answer-divider,
-    body.printing-answer .cover-page-exam {
+    body.printing-answer .cover-page-exam,
+    body.printing-answer .section-exam *,
+    body.printing-answer .cover-page-exam * {
         display: none !important;
+        height: 0 !important;
+        width: 0 !important;
+        overflow: hidden !important;
+        visibility: hidden !important;
+        position: absolute !important;
+        top: -9999px !important;
+        left: -9999px !important;
     }
 
     /* Remove page break from the last sheet of the visible section */
