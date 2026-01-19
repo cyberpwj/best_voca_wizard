@@ -394,30 +394,35 @@ button.primary-btn:hover {
     @page {
         size: A4 landscape;
         margin: 0;
+        /* Critical: Hides browser header/footer dates/URLs in most browsers */
     }
 
     html,
     body {
         width: 100%;
         height: 100%;
-        margin: 0;
-        padding: 0;
+        margin: 0 !important;
+        padding: 0 !important;
         background: white;
+        -webkit-print-color-adjust: exact;
+        /* Ensure colors print */
+        print-color-adjust: exact;
     }
 
     .sheet-container {
         width: 297mm;
-        /* Reduce height slightly (210mm -> 208mm) to prevent overflow causing blank page */
-        height: 208mm;
+        /* Safe height to avoid triggering a new page due to tiny overflows or browser rendering quirks */
+        height: 209mm;
         margin: 0 !important;
         box-shadow: none;
         page-break-after: always;
         padding: 5mm 10mm;
         overflow: hidden;
-        /* Clip any potential overflow */
         /* Reset JS scaling for print */
         transform: none !important;
         margin-bottom: 0 !important;
+        border: none !important;
+        /* Ensure no borders add up */
     }
 
     .sidebar,
