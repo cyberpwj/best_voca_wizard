@@ -1,5 +1,5 @@
 // Voca Builder Data File
-// Exported on 1/19/2026, 5:35:15 PM
+// Exported on 1/19/2026, 5:41:04 PM
 
 const VOCAB_DATA = {
     "UserBook_1768461609896": {
