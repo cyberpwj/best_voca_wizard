@@ -148,6 +148,18 @@
             </div>
 
             <div class="control-group">
+                <label>👩‍🏫 선생님 (표지용)</label>
+                <select id="teacher-select" style="margin-bottom:8px; width:100%;">
+                    <option value="">선택 안 함</option>
+                </select>
+                <div style="display:flex; gap:5px;">
+                    <button id="add-teacher-btn" class="icon-btn add-btn" title="선생님 이름 추가">➕ 추가</button>
+                    <button id="edit-teacher-btn" class="icon-btn edit-btn" title="선생님 이름 수정">✎ 수정</button>
+                    <button id="del-teacher-btn" class="icon-btn del-btn" title="선생님 삭제">🗑 삭제</button>
+                </div>
+            </div>
+
+            <div class="control-group">
                 <label>🎲 모드 선택</label>
                 <select id="exam-mode">
                     <option value="range">범위 순서대로 (권장)</option>
@@ -217,6 +229,19 @@
             <div class="modal-actions">
                 <button id="close-modal-btn" class="cancel-btn">취소</button>
                 <button id="save-book-btn" class="primary-btn" style="width: auto; padding: 8px 20px;">저장하기</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Adding/Editing Teacher -->
+    <div id="teacher-modal" class="modal-overlay">
+        <div class="modal" style="width: 300px;">
+            <h3 id="teacher-modal-title">선생님 이름 추가</h3>
+            <label>선생님 성함</label>
+            <input type="text" id="teacher-name-input" placeholder="예: James Kim">
+            <div class="modal-actions">
+                <button id="close-teacher-modal-btn" class="cancel-btn">취소</button>
+                <button id="save-teacher-btn" class="primary-btn" style="width: auto; padding: 8px 20px;">저장</button>
             </div>
         </div>
     </div>

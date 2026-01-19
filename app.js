@@ -12,7 +12,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const examMode = document.getElementById('exam-mode');
     const randomCountInput = document.getElementById('random-count');
     const generateBtn = document.getElementById('generate-btn');
-    // const printBtn = document.getElementById('print-btn'); // REMOVED
     const printTestBtn = document.getElementById('print-test-btn');
     const printAnswerBtn = document.getElementById('print-answer-btn');
 
@@ -20,7 +19,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const useCoverCheckbox = document.getElementById('use-cover');
     const exportBtn = document.getElementById('export-data-btn');
 
-    // Modal Elements
+    // Teacher Elements
+    const teacherSelect = document.getElementById('teacher-select');
+    const addTeacherBtn = document.getElementById('add-teacher-btn');
+    const editTeacherBtn = document.getElementById('edit-teacher-btn');
+    const delTeacherBtn = document.getElementById('del-teacher-btn');
+    const teacherModal = document.getElementById('teacher-modal');
+    const teacherModalTitle = document.getElementById('teacher-modal-title');
+    const teacherNameInput = document.getElementById('teacher-name-input');
+    const saveTeacherBtn = document.getElementById('save-teacher-btn');
+    const closeTeacherModalBtn = document.getElementById('close-teacher-modal-btn');
+
+
+    // Modal Elements (Book)
     const addBookBtn = document.getElementById('add-book-btn');
     const editBookBtn = document.getElementById('edit-book-btn');
     const delBookBtn = document.getElementById('del-book-btn');
@@ -37,8 +48,14 @@ document.addEventListener('DOMContentLoaded', () => {
     let isEditMode = false;
     let editingBookId = null;
 
+    // Teacher State
+    let TEACHER_LIST = [];
+    let isTeacherEditMode = false;
+    let editingTeacherIndex = -1;
+
     // === INITIALIZATION ===
     refreshBookSelect();
+    loadTeachers();
 
     // === EVENT LISTENERS ===
     bookSelect.addEventListener('change', updateRange);
@@ -57,7 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     generateBtn.addEventListener('click', generateExam);
 
-    // Modal: ADD
+    // --- Book Modal Handlers ---
     addBookBtn.addEventListener('click', () => {
         isEditMode = false;
         editingBookId = null;
@@ -69,7 +86,6 @@ document.addEventListener('DOMContentLoaded', () => {
         modalOverlay.style.display = 'flex';
     });
 
-    // Modal: EDIT
     editBookBtn.addEventListener('click', () => {
         const bookId = bookSelect.value;
         if (!bookId) return alert("수정할 단어장을 선택해주세요.");
@@ -106,8 +122,112 @@ document.addEventListener('DOMContentLoaded', () => {
 
     exportBtn.addEventListener('click', handleExportData);
 
+    // --- Teacher Modal Handlers ---
+    addTeacherBtn.addEventListener('click', () => {
+        isTeacherEditMode = false;
+        teacherModalTitle.textContent = "선생님 이름 추가";
+        teacherNameInput.value = "";
+        teacherModal.style.display = 'flex';
+    });
+
+    editTeacherBtn.addEventListener('click', () => {
+        const idx = teacherSelect.selectedIndex;
+        // The first option is "선택 안 함" (value=""), so index 0 is valid but not editable as a teacher.
+        // Wait, if value is empty, it's "None".
+        const val = teacherSelect.value;
+        if (!val) return alert("수정할 선생님 이름을 선택해주세요.");
+
+        // Find index in TEACHER_LIST
+        const listIndex = TEACHER_LIST.indexOf(val);
+        if (listIndex === -1) return;
+
+        isTeacherEditMode = true;
+        editingTeacherIndex = listIndex;
+        teacherModalTitle.textContent = "선생님 이름 수정";
+        teacherNameInput.value = val;
+        teacherModal.style.display = 'flex';
+    });
+
+    delTeacherBtn.addEventListener('click', () => {
+        const val = teacherSelect.value;
+        if (!val) return alert("삭제할 선생님 이름을 선택해주세요.");
+
+        if (confirm(`'${val}' 선생님을 목록에서 삭제하시겠습니까?`)) {
+            TEACHER_LIST = TEACHER_LIST.filter(t => t !== val);
+            saveTeachers();
+            refreshTeacherSelect();
+        }
+    });
+
+    closeTeacherModalBtn.addEventListener('click', () => teacherModal.style.display = 'none');
+
+    saveTeacherBtn.addEventListener('click', () => {
+        const name = teacherNameInput.value.trim();
+        if (!name) return alert("이름을 입력해주세요.");
+
+        if (isTeacherEditMode) {
+            TEACHER_LIST[editingTeacherIndex] = name;
+        } else {
+            TEACHER_LIST.push(name);
+        }
+
+        saveTeachers();
+        refreshTeacherSelect();
+        // Select the newly added/edited teacher
+        teacherSelect.value = name;
+        teacherModal.style.display = 'none';
+    });
+
 
     // === FUNCTIONS ===
+
+    // Teacher Logic
+    function loadTeachers() {
+        // 1. Load from LocalStorage
+        const stored = localStorage.getItem('VOCAB_TEACHERS');
+        let localTeachers = [];
+        if (stored) {
+            try {
+                localTeachers = JSON.parse(stored);
+            } catch (e) {
+                localTeachers = [];
+            }
+        }
+
+        // 2. Load from Exported Data (data_loader.js)
+        let exportedTeachers = [];
+        if (typeof VOCAB_TEACHERS_DATA !== 'undefined' && Array.isArray(VOCAB_TEACHERS_DATA)) {
+            exportedTeachers = VOCAB_TEACHERS_DATA;
+        }
+
+        // 3. Merge (Unique)
+        // Combine both sources, remove duplicates
+        const merged = Array.from(new Set([...localTeachers, ...exportedTeachers]));
+
+        TEACHER_LIST = merged;
+
+        // Update LocalStorage with the merged list so it persists
+        saveTeachers();
+
+        refreshTeacherSelect();
+    }
+
+    function saveTeachers() {
+        localStorage.setItem('VOCAB_TEACHERS', JSON.stringify(TEACHER_LIST));
+    }
+
+    function refreshTeacherSelect() {
+        const currentVal = teacherSelect.value;
+        teacherSelect.innerHTML = '<option value="">선택 안 함</option>';
+        TEACHER_LIST.forEach(name => {
+            const op = document.createElement('option');
+            op.value = name;
+            op.textContent = name;
+            teacherSelect.appendChild(op);
+        });
+        if (TEACHER_LIST.includes(currentVal)) teacherSelect.value = currentVal;
+    }
+
 
     function refreshBookSelect() {
         const currentVal = bookSelect.value;
@@ -233,9 +353,19 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function handleExportData() {
-        if (!confirm("현재 등록된 단어장 데이터를 내보냅니다. (data_loader.js 파일 저장)")) return;
+        if (!confirm("현재 등록된 단어장 및 선생님 데이터를 내보냅니다. (data_loader.js 파일 저장)")) return;
         const jsonStr = JSON.stringify(VOCAB_DATA, null, 4);
-        const jsContent = `// Voca Builder Data File\n// Exported on ${new Date().toLocaleString()}\n\nconst VOCAB_DATA = ${jsonStr};\n\nfunction getBooks(){ return Object.keys(VOCAB_DATA).map(k=>({id:k, title:VOCAB_DATA[k].title, maxUnit:VOCAB_DATA[k].units, coverImage:VOCAB_DATA[k].coverImage})); }\nfunction getUnitData(bookId, unitNum){ const book=VOCAB_DATA[bookId]; if(!book||!book.data[unitNum])return[]; return book.data[unitNum]; }`;
+        const teachersStr = JSON.stringify(TEACHER_LIST, null, 4);
+
+        const jsContent = `// Voca Builder Data File
+// Exported on ${new Date().toLocaleString()}
+
+const VOCAB_DATA = ${jsonStr};
+
+const VOCAB_TEACHERS_DATA = ${teachersStr};
+
+function getBooks(){ return Object.keys(VOCAB_DATA).map(k=>({id:k, title:VOCAB_DATA[k].title, maxUnit:VOCAB_DATA[k].units, coverImage:VOCAB_DATA[k].coverImage})); }
+function getUnitData(bookId, unitNum){ const book=VOCAB_DATA[bookId]; if(!book||!book.data[unitNum])return[]; return book.data[unitNum]; }`;
 
         const blob = new Blob([jsContent], { type: "text/javascript;charset=utf-8" });
         const url = URL.createObjectURL(blob);
@@ -262,10 +392,19 @@ document.addEventListener('DOMContentLoaded', () => {
         const testType = document.querySelector('input[name="test-type"]:checked').value;
         const useCover = useCoverCheckbox ? useCoverCheckbox.checked : false;
 
+        // Context Data
+        const teacherName = teacherSelect.value; // May be empty
+        // Date Format: [2026 - 01 - 19]
+        const today = new Date();
+        const y = today.getFullYear();
+        const m = String(today.getMonth() + 1).padStart(2, '0');
+        const d = String(today.getDate()).padStart(2, '0');
+        const dateStr = `[${y} - ${m} - ${d}]`;
+
         let panelsData = [];
         if (mode === 'random') {
             let allWords = [];
-            for (let u = uStart; u <= uEnd; u++) allWords = allWords.concat(getUnitData(bookId, u)); // Uses stored order (which is already shuffled on upload)
+            for (let u = uStart; u <= uEnd; u++) allWords = allWords.concat(getUnitData(bookId, u));
 
             // Random mode re-shuffles for the test
             allWords.sort(() => Math.random() - 0.5);
@@ -279,13 +418,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             }
         } else {
-            // RANGE MODE: Just sequential units
+            // RANGE MODE
             for (let u = uStart; u <= uEnd; u++) {
                 panelsData.push({ title: `${selectedBook.title} Unit ${u}`, words: getUnitData(bookId, u) });
             }
         }
 
-        const ctx = { testType, academyName: ACADEMY_NAME, logo: DEFAULT_LOGO };
+        const ctx = {
+            testType,
+            academyName: ACADEMY_NAME,
+            logo: DEFAULT_LOGO,
+            teacherName,
+            dateStr
+        };
 
         previewArea.innerHTML = '';
 
@@ -319,7 +464,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (useCover) {
             const answerCoverEl = createCoverPage({
                 title: selectedBook.title,
-                subTitle: mode === 'random' ? 'Random Test' : `Unit ${uStart} ~ ${uEnd}`,
+                subTitle: mode === 'random' ? `Random (Unit ${uStart} ~ ${uEnd})` : `Unit ${uStart} ~ ${uEnd}`, // REVERTED: Show range even in RANDOM mode as per user request
                 bookCover: selectedBook.coverImage,
                 isAnswer: true,
                 ...ctx
@@ -358,10 +503,9 @@ document.addEventListener('DOMContentLoaded', () => {
         // Header Info Logic
         let infoHtml = '';
         if (options.isAnswer) {
-            // Answer Key: No info fields needed
             infoHtml = ``;
         } else {
-            // Exam Sheet: Only Date and Score, Right Aligned
+            // Exam Sheet: Date and Score
             infoHtml = `
                 <div class="header-info" style="justify-content: flex-end; gap: 20px;">
                     <span>Date: __________</span>
@@ -411,8 +555,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 wordBoxHtml = `<div class="q-word-box"><span class="q-word">${word.eng}</span></div>`;
                 inputBoxHtml = `<div class="q-input-box"><div class="q-input-line"></div></div>`;
             } else {
-                // Spelling Test: Layout like Answer Key (Left: Empty for specific writing, Right: Korean)
-                // This fixes the issue where long Korean meanings break the fixed-width Left column.
                 wordBoxHtml = `<div class="q-word-box"></div>`;
                 inputBoxHtml = `<div class="q-input-box"><span class="q-mean-ans">${word.kor}</span></div>`;
             }
@@ -434,24 +576,34 @@ document.addEventListener('DOMContentLoaded', () => {
         // Right Side Content
         let centerContentHtml = '';
 
+        // Prepare Info Box Content
+        // Start: Date string
+        // Teacher: Teacher Name or blank
+        // Name: Blank (Only for Exam usually, but user asked for similar)
+        const dateDisplay = ctx.dateStr;
+        const teacherDisplay = ctx.teacherName || "__________";
+
+        const infoBoxHtml = `
+            <div class="cover-bottom-content">
+                <div class="cover-info-box">
+                    <div class="cover-row"><span>Date</span><span>${dateDisplay}</span></div>
+                    <div class="cover-row"><span>Teacher</span><span>${teacherDisplay}</span></div>
+                    ${!ctx.isAnswer ? `<div class="cover-row"><span>Name</span><span>__________</span></div>` : ''}
+                </div>
+            </div>
+        `;
+
         if (ctx.isAnswer) {
-            // Answer Key: Centered Text
+            // Answer Key: Centered Text "정 답 지" AND Info Box
             centerContentHtml = `
-                <div class="cover-center-content">
+                <div class="cover-center-content" style="flex-direction:column;">
                     <div class="cover-answer-mark">정 답 지</div>
                 </div>
+                ${infoBoxHtml}
             `;
         } else {
             // Exam: Info Box (Start, Teacher, Name) - Positioned towards bottom
-            centerContentHtml = `
-                <div class="cover-bottom-content">
-                    <div class="cover-info-box">
-                        <div class="cover-row"><span>Start</span><span>__________</span></div>
-                        <div class="cover-row"><span>Teacher</span><span>__________</span></div>
-                        <div class="cover-row"><span>Name</span><span>__________</span></div>
-                    </div>
-                </div>
-            `;
+            centerContentHtml = infoBoxHtml;
         }
 
         page.innerHTML = `
