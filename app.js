@@ -680,11 +680,6 @@ function getUnitData(bookId, unitNum){ const book=VOCAB_DATA[bookId]; if(!book||
     // Instead of replacing the handler, we just add another one that runs after.
     // Since JS event listeners run in order, we can just add a new click listener.
     generateBtn.addEventListener('click', () => {
-        // Mobile: Close sidebar after generating
-        if (window.innerWidth <= 1024) {
-            if (sidebar) sidebar.classList.remove('active');
-            if (mobileToggleBtn) mobileToggleBtn.textContent = '설정 열기 ▼';
-        }
         // Apply scaling
         setTimeout(fitSheetsToScreen, 100);
     });
