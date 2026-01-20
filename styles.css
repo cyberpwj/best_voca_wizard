@@ -403,10 +403,13 @@ button.primary-btn:hover {
         height: 100%;
         margin: 0 !important;
         padding: 0 !important;
-        background: white;
+        background-color: white !important;
+        color: black !important;
         -webkit-print-color-adjust: exact;
         /* Ensure colors print */
         print-color-adjust: exact;
+        color-scheme: light;
+        /* Force light mode on mobile browsers */
     }
 
     .sheet-container {
@@ -422,6 +425,9 @@ button.primary-btn:hover {
         transform: none !important;
         margin-bottom: 0 !important;
         border: none !important;
+        background-color: white !important;
+        /* Safety for dark mode */
+        color: black !important;
     }
 
     .sidebar,
