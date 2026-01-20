@@ -414,8 +414,8 @@ button.primary-btn:hover {
 
     .sheet-container {
         width: 297mm;
-        /* Increased height to utilize more space while relying on @page margin:0 to hide headers */
-        height: 208mm;
+        /* Adjusted to 202mm to fit iPhone Safari margins while minimizing whitespace on others */
+        height: 202mm;
         margin: 0 !important;
         box-shadow: none;
         page-break-after: always;

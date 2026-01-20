@@ -85,7 +85,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // 4. Register cleanup triggers AFTER print dialog initiates
             // We delay this slightly more (500ms) to ensure we don't catch the current event loop or immediate focus shifts on mobile.
             setTimeout(() => {
-                window.addEventListener('focus', cleanupPrintClasses, { once: true });
+                // Removed 'focus' listener as changing print settings (orientation) on iPhone might trigger it.
                 document.addEventListener('click', cleanupPrintClasses, { once: true });
                 document.addEventListener('touchend', cleanupPrintClasses, { once: true });
             }, 500);
