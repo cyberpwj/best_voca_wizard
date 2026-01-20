@@ -14,6 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const generateBtn = document.getElementById('generate-btn');
     const printTestBtn = document.getElementById('print-test-btn');
     const printAnswerBtn = document.getElementById('print-answer-btn');
+    const resetViewBtn = document.getElementById('reset-view-btn');
 
     const previewArea = document.getElementById('preview-area');
     const useCoverCheckbox = document.getElementById('use-cover');
@@ -64,11 +65,12 @@ document.addEventListener('DOMContentLoaded', () => {
     function cleanupPrintClasses() {
         document.body.classList.remove('printing-test');
         document.body.classList.remove('printing-answer');
-        // Remove listeners to prevent memory leaks or unwanted firings
+        // Remove listeners to prevent memory leaks or unwanted firings (legacy)
         window.removeEventListener('focus', cleanupPrintClasses);
         document.removeEventListener('click', cleanupPrintClasses);
         document.removeEventListener('touchend', cleanupPrintClasses);
     }
+    if (resetViewBtn) resetViewBtn.addEventListener('click', cleanupPrintClasses);
 
     function triggerPrint(type) {
         // 1. Cleanup any existing state first
@@ -81,14 +83,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // 3. Wait for DOM update then Print
         setTimeout(() => {
             window.print();
-
-            // 4. Register cleanup triggers AFTER print dialog initiates
-            // We delay this slightly more (500ms) to ensure we don't catch the current event loop or immediate focus shifts on mobile.
-            setTimeout(() => {
-                // Removed 'focus' listener as changing print settings (orientation) on iPhone might trigger it.
-                document.addEventListener('click', cleanupPrintClasses, { once: true });
-                document.addEventListener('touchend', cleanupPrintClasses, { once: true });
-            }, 500);
+            // No auto-cleanup listeners added. User must click "Reset View".
         }, 50);
     }
 

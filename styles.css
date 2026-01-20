@@ -446,6 +446,32 @@ button.primary-btn:hover {
         background: transparent !important;
     }
 
+    /* RESET VIEW BUTTON (Manual Exit for Print Mode) */
+    #reset-view-btn {
+        position: fixed;
+        bottom: 30px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 9999;
+        padding: 15px 30px;
+        background-color: #f43f5e;
+        color: white;
+        border: none;
+        border-radius: 50px;
+        font-weight: bold;
+        font-size: 1.1rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        cursor: pointer;
+        display: none;
+        /* Default hidden */
+    }
+
+    /* Show button when print mode is active */
+    body.printing-test #reset-view-btn,
+    body.printing-answer #reset-view-btn {
+        display: block !important;
+    }
+
     .section-exam,
     .section-answer,
     .cover-page-exam,
