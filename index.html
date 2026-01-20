@@ -125,9 +125,15 @@
 
         <!-- Sidebar -->
         <aside class="sidebar active" id="sidebar">
-            <h2 style="margin:0 0 20px 0; color:var(--primary);">
-                <span style="font-size:0.8em; color:#333;">BestEdu English</span><br>Voca Builder
-            </h2>
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:15px;">
+                <h2 style="margin:0; color:var(--primary); font-size:1.2rem;">
+                    <span style="font-size:0.75em; color:#333;">BestEdu English</span><br>Voca Builder
+                </h2>
+                <!-- Cover Option Moved Here -->
+                <label style="font-size:0.85rem; font-weight:600; cursor:pointer;">
+                    <input type="checkbox" id="use-cover" checked> 표지 ON
+                </label>
+            </div>
 
             <!-- Book Selection & Management -->
             <div class="control-group">
@@ -146,53 +152,49 @@
             </div>
 
             <div class="control-group">
-                <label>📑 Unit 범위</label>
+                <label>�‍🏫 선생님</label>
+                <div style="display:flex; gap:5px; margin-bottom:5px;">
+                    <select id="teacher-select" style="flex:1;">
+                        <option value="">선택 안 함</option>
+                    </select>
+                </div>
                 <div style="display:flex; gap:5px;">
-                    <input type="number" id="unit-start" placeholder="Start">
-                    <input type="number" id="unit-end" placeholder="End">
+                    <button id="add-teacher-btn" class="icon-btn add-btn" style="flex:1;">➕</button>
+                    <button id="edit-teacher-btn" class="icon-btn edit-btn" style="flex:1;">✎</button>
+                    <button id="del-teacher-btn" class="icon-btn del-btn" style="flex:1;">🗑</button>
                 </div>
             </div>
 
+            <!-- Merged Settings -->
             <div class="control-group">
-                <label>👩‍🏫 선생님 (표지용)</label>
-                <select id="teacher-select" style="margin-bottom:8px; width:100%;">
-                    <option value="">선택 안 함</option>
-                </select>
-                <div style="display:flex; gap:5px;">
-                    <button id="add-teacher-btn" class="icon-btn add-btn" title="선생님 이름 추가">➕ 추가</button>
-                    <button id="edit-teacher-btn" class="icon-btn edit-btn" title="선생님 이름 수정">✎ 수정</button>
-                    <button id="del-teacher-btn" class="icon-btn del-btn" title="선생님 삭제">🗑 삭제</button>
+                <label>⚙️ 시험 설정</label>
+                <!-- Row 1: Range & Mode -->
+                <div style="display:flex; gap:5px; align-items:center; margin-bottom:8px;">
+                    <input type="number" id="unit-start" placeholder="Start" style="width:30%; padding:6px;">
+                    <span>~</span>
+                    <input type="number" id="unit-end" placeholder="End" style="width:30%; padding:6px;">
+                    <select id="exam-mode" style="flex:1; padding:6px; font-size:0.9em;">
+                        <option value="range">기본</option>
+                        <option value="random">무작위</option>
+                    </select>
+                </div>
+
+                <!-- Row 2: Random Count & Type -->
+                <div style="display:flex; gap:10px; align-items:center; justify-content:space-between;">
+                    <input type="number" id="random-count" placeholder="랜덤 개수(80)" style="width:40%; padding:6px;">
+
+                    <div style="display:flex; gap:10px; align-items:center;">
+                        <label style="font-weight:400; font-size:0.9em; cursor:pointer;">
+                            <input type="radio" name="test-type" value="meaning" checked> 뜻
+                        </label>
+                        <label style="font-weight:400; font-size:0.9em; cursor:pointer;">
+                            <input type="radio" name="test-type" value="spelling"> 스펠링
+                        </label>
+                    </div>
                 </div>
             </div>
 
-            <div class="control-group">
-                <label>🎲 모드 선택</label>
-                <select id="exam-mode">
-                    <option value="range">범위 순서대로 (권장)</option>
-                    <option value="random">무작위 추출</option>
-                </select>
-                <input type="number" id="random-count" placeholder="무작위 개수 (기본 80)" style="margin-top:5px;">
-            </div>
 
-            <div class="control-group">
-                <label>📝 시험 유형</label>
-                <div style="display:flex; gap:10px;">
-                    <label style="font-weight:400;"><input type="radio" name="test-type" value="meaning" checked> 뜻
-                        쓰기</label>
-                    <label style="font-weight:400;"><input type="radio" name="test-type" value="spelling"> 스펠링</label>
-                </div>
-            </div>
-
-            <div class="control-group">
-                <label>🎨 표지 옵션</label>
-                <label style="font-weight:600; display:block; margin-bottom:5px; font-size:0.9em;">
-                    <input type="checkbox" id="use-cover" checked> 표지 생성하기
-                </label>
-                <p style="font-size:11px; color:#666; margin-top:5px;">
-                    * 로고: BestEdu English (자동)<br>
-                    * 표지 이미지: 좌측 배치
-                </p>
-            </div>
 
             <button id="generate-btn" class="primary-btn">시험지 생성</button>
             <!-- Print Buttons Split -->
