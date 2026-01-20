@@ -393,8 +393,8 @@ button.primary-btn:hover {
 @media print {
     @page {
         size: A4 landscape;
-        margin: 0;
-        /* Critical: Hides browser header/footer dates/URLs in most browsers */
+        margin: 0mm !important;
+        /* Force 0 margin to hide browser headers/footers */
     }
 
     html,
@@ -411,8 +411,8 @@ button.primary-btn:hover {
 
     .sheet-container {
         width: 297mm;
-        /* Safe height to avoid triggering a new page due to tiny overflows */
-        height: 195mm;
+        /* Increased height to utilize more space while relying on @page margin:0 to hide headers */
+        height: 208mm;
         margin: 0 !important;
         box-shadow: none;
         page-break-after: always;

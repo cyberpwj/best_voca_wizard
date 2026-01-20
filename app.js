@@ -60,32 +60,46 @@ document.addEventListener('DOMContentLoaded', () => {
     // === EVENT LISTENERS ===
     bookSelect.addEventListener('change', updateRange);
 
-    // Split Print Handlers
     // Split Print Handlers with better mobile support
-    printTestBtn.addEventListener('click', () => {
-        document.body.classList.add('printing-test');
-        // Small delay to ensure DOM updates before print dialog opens
-        setTimeout(() => {
-            window.print();
-            // Cleanup after a delay (fallback) or immediately since print() blocks in many desktop browsers
-            // For mobile, print() might return immediately. 
-            // We'll rely on a delayed cleanup or onafterprint if we could, but a simple timeout is often enough.
-            // If we remove immediately, mobile might not render the correct view for the print preview generation.
-            // IMPORTANT: On mobile, if we remove the class too soon, the background generated PDF will be wrong.
-        }, 50);
-    });
-
-    // Listen for print completion to cleanup classes safely
-    window.addEventListener('afterprint', () => {
+    function cleanupPrintClasses() {
         document.body.classList.remove('printing-test');
         document.body.classList.remove('printing-answer');
-    });
+        // Remove listeners to prevent memory leaks or unwanted firings
+        window.removeEventListener('focus', cleanupPrintClasses);
+        document.removeEventListener('click', cleanupPrintClasses);
+        document.removeEventListener('touchend', cleanupPrintClasses);
+    }
 
-    printAnswerBtn.addEventListener('click', () => {
-        document.body.classList.add('printing-answer');
+    function triggerPrint(type) {
+        // 1. Cleanup any existing state first
+        cleanupPrintClasses();
+
+        // 2. Add class
+        const cls = type === 'test' ? 'printing-test' : 'printing-answer';
+        document.body.classList.add(cls);
+
+        // 3. Wait for DOM update then Print
         setTimeout(() => {
             window.print();
+
+            // 4. Register cleanup triggers AFTER print dialog initiates
+            // We delay this slightly more (500ms) to ensure we don't catch the current event loop or immediate focus shifts on mobile.
+            setTimeout(() => {
+                window.addEventListener('focus', cleanupPrintClasses, { once: true });
+                document.addEventListener('click', cleanupPrintClasses, { once: true });
+                document.addEventListener('touchend', cleanupPrintClasses, { once: true });
+            }, 500);
         }, 50);
+    }
+
+    printTestBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        triggerPrint('test');
+    });
+
+    printAnswerBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        triggerPrint('answer');
     });
 
     generateBtn.addEventListener('click', generateExam);
