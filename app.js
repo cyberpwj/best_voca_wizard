@@ -45,6 +45,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const newBookFile = document.getElementById('new-book-file');
     const editFileNote = document.getElementById('edit-file-note');
 
+    // History Elements
+    const historyBtn = document.getElementById('history-btn');
+    const historyModal = document.getElementById('history-modal');
+    const closeHistoryBtn = document.getElementById('close-history-btn');
+    const historyList = document.getElementById('history-list');
+    const historyTeacherFilter = document.getElementById('history-teacher-filter');
+
     // State
     let isEditMode = false;
     let editingBookId = null;
@@ -54,9 +61,14 @@ document.addEventListener('DOMContentLoaded', () => {
     let isTeacherEditMode = false;
     let editingTeacherIndex = -1;
 
+    // History State
+    let VOCAB_HISTORY = [];
+    let currentExamData = null; // Stores the current exam context/content
+
     // === INITIALIZATION ===
     refreshBookSelect();
     loadTeachers();
+    loadHistoryData();
 
     // === EVENT LISTENERS ===
     bookSelect.addEventListener('change', updateRange);
@@ -82,6 +94,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // 3. Wait for DOM update then Print
         setTimeout(() => {
+            // Save History ONLY on Random Mode Print
+            if (currentExamData && currentExamData.mode === 'random') {
+                // Check for duplicates (optional, but good practice to avoid saving same gen twice if printed twice)
+                // Use a simple timestamp check or make a new ID only on generation
+                // Here we just check if ID exists
+                const exists = VOCAB_HISTORY.find(x => x.id === currentExamData.id);
+                if (!exists) {
+                    VOCAB_HISTORY.push(currentExamData);
+                    saveHistoryData();
+                }
+            }
+
             window.print();
             // No auto-cleanup listeners added. User must click "Reset View".
         }, 50);
@@ -201,7 +225,27 @@ document.addEventListener('DOMContentLoaded', () => {
         // Select the newly added/edited teacher
         teacherSelect.value = name;
         teacherModal.style.display = 'none';
+        teacherSelect.value = name;
+        teacherModal.style.display = 'none';
     });
+
+
+    // --- History Handlers ---
+    if (historyBtn) {
+        historyBtn.addEventListener('click', () => {
+            refreshHistoryFilter();
+            renderHistoryList();
+            historyModal.style.display = 'flex';
+        });
+    }
+
+    if (closeHistoryBtn) {
+        closeHistoryBtn.addEventListener('click', () => historyModal.style.display = 'none');
+    }
+
+    if (historyTeacherFilter) {
+        historyTeacherFilter.addEventListener('change', () => renderHistoryList(historyTeacherFilter.value));
+    }
 
 
     // === FUNCTIONS ===
@@ -239,6 +283,183 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function saveTeachers() {
         localStorage.setItem('VOCAB_TEACHERS', JSON.stringify(TEACHER_LIST));
+    }
+
+    refreshTeacherSelect();
+
+    // History Logic
+    function loadHistoryData() {
+        // 1. Load from LocalStorage
+        const stored = localStorage.getItem('VOCAB_HISTORY');
+        let localHistory = [];
+        if (stored) {
+            try {
+                localHistory = JSON.parse(stored);
+            } catch (e) {
+                localHistory = [];
+            }
+        }
+
+        // 2. Load from Exported Data (data_loader.js)
+        let exportedHistory = [];
+        if (typeof VOCAB_HISTORY_DATA !== 'undefined' && Array.isArray(VOCAB_HISTORY_DATA)) {
+            exportedHistory = VOCAB_HISTORY_DATA;
+        }
+
+        // 3. Merge (Unique by ID)
+        // Combine both, then filter by ID to keep only unique entries
+        const combined = [...localHistory, ...exportedHistory];
+        const uniqueMap = new Map();
+        combined.forEach(item => {
+            if (!uniqueMap.has(item.id)) {
+                uniqueMap.set(item.id, item);
+            }
+        });
+
+        VOCAB_HISTORY = Array.from(uniqueMap.values());
+
+        // Update LocalStorage so it stays synced
+        saveHistoryData();
+    }
+
+    function saveHistoryData() {
+        // Limit history to last 50 items to prevent storage overflow
+        if (VOCAB_HISTORY.length > 50) {
+            VOCAB_HISTORY = VOCAB_HISTORY.slice(0, 50);
+        }
+        try {
+            localStorage.setItem('VOCAB_HISTORY', JSON.stringify(VOCAB_HISTORY));
+        } catch (e) {
+            alert('브라우저 용량 부족으로 기록을 저장할 수 없습니다.');
+        }
+    }
+
+    function refreshHistoryFilter() {
+        // Populate teacher filter in history modal
+        // Get unique teachers from history
+        const teachers = Array.from(new Set(VOCAB_HISTORY.map(item => item.ctx.teacherName).filter(t => t)));
+        historyTeacherFilter.innerHTML = '<option value="">전체 보기</option>';
+        teachers.forEach(t => {
+            const op = document.createElement('option');
+            op.value = t;
+            op.textContent = t;
+            historyTeacherFilter.appendChild(op);
+        });
+    }
+
+    function renderHistoryList(filterTeacher = "") {
+        historyList.innerHTML = "";
+
+        let list = [...VOCAB_HISTORY];
+        // Sort by Date Descending
+        list.sort((a, b) => b.id - a.id);
+
+        if (filterTeacher) {
+            list = list.filter(item => item.ctx.teacherName === filterTeacher);
+        }
+
+        if (list.length === 0) {
+            historyList.innerHTML = '<div style="text-align:center; color:#999; padding:20px;">기록이 없습니다.</div>';
+            return;
+        }
+
+        list.forEach(item => {
+            const dateObj = new Date(item.id);
+            const dateStr = dateObj.toLocaleString();
+
+            const teacher = item.ctx.teacherName || "선생님 미지정";
+            const range = `Unit ${item.range.start} ~ ${item.range.end}`;
+
+            const div = document.createElement('div');
+            div.className = 'history-item';
+            div.innerHTML = `
+                <div class="history-info">
+                    <h4>${item.bookTitle} <span style="font-size:0.8em; font-weight:normal; color:#666;">(${range})</span></h4>
+                    <div class="history-meta">
+                        📅 ${dateStr} | 👨‍🏫 ${teacher} | 🎲 Random (${item.ctx.testType})
+                    </div>
+                </div>
+                <div class="history-actions">
+                    <button class="h-btn h-print-test">📄 시험지</button>
+                    <button class="h-btn h-print-ans">✅ 정답지</button>
+                    <button class="h-btn h-del">🗑</button>
+                </div>
+            `;
+
+            // Bind Events
+            div.querySelector('.h-print-test').addEventListener('click', () => loadAndPrint(item, 'test'));
+            div.querySelector('.h-print-ans').addEventListener('click', () => loadAndPrint(item, 'answer'));
+            div.querySelector('.h-del').addEventListener('click', () => deleteHistoryItem(item.id));
+
+            historyList.appendChild(div);
+        });
+    }
+
+    function deleteHistoryItem(id) {
+        if (!confirm("이 기록을 삭제하시겠습니까?")) return;
+        VOCAB_HISTORY = VOCAB_HISTORY.filter(x => x.id !== id);
+        saveHistoryData();
+        renderHistoryList(historyTeacherFilter.value);
+    }
+
+    function loadAndPrint(item, type) {
+        // Restore Exam Generation
+        // Reuse render logic
+        const { panels, ctx } = item;
+
+        previewArea.innerHTML = '';
+        const useCover = true; // Force cover or maybe use saved setting? Let's assume true or use default logic.
+        // Actually, let's just use standard rendering.
+
+        // 1. Cover Page (Exam)
+        const coverEl = createCoverPage({
+            title: item.bookTitle,
+            subTitle: `Random (Unit ${item.range.start} ~ ${item.range.end})`,
+            bookCover: item.bookCover,
+            isAnswer: false,
+            ...ctx
+        });
+        coverEl.classList.add('cover-page-exam');
+        previewArea.appendChild(coverEl);
+
+        // 2. Questions
+        const qContainer = document.createElement('div');
+        qContainer.className = 'section-exam';
+        renderPages(panels, { isAnswer: false, ...ctx }, qContainer);
+        previewArea.appendChild(qContainer);
+
+        // 3. Separator
+        const br = document.createElement('div');
+        br.className = 'no-print answer-divider';
+        br.style.cssText = 'text-align:center; padding:20px; font-weight:bold; color:#444;';
+        br.innerHTML = '⬇️ ANSWER KEY ⬇️';
+        previewArea.appendChild(br);
+
+        // 4. Cover Page (Answer)
+        const answerCoverEl = createCoverPage({
+            title: item.bookTitle,
+            subTitle: `Random (Unit ${item.range.start} ~ ${item.range.end})`,
+            bookCover: item.bookCover,
+            isAnswer: true,
+            ...ctx
+        });
+        answerCoverEl.classList.add('cover-page-answer');
+        previewArea.appendChild(answerCoverEl);
+
+        // 5. Answers
+        const aContainer = document.createElement('div');
+        aContainer.className = 'section-answer';
+        renderPages(panels, { isAnswer: true, ...ctx }, aContainer);
+        previewArea.appendChild(aContainer);
+
+        // Close modal and Print
+        historyModal.style.display = 'none';
+
+        // Wait for render then print
+        setTimeout(() => {
+            fitSheetsToScreen();
+            triggerPrint(type);
+        }, 300);
     }
 
     function refreshTeacherSelect() {
@@ -378,9 +599,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function handleExportData() {
-        if (!confirm("현재 등록된 단어장 및 선생님 데이터를 내보냅니다. (data_loader.js 파일 저장)")) return;
+        if (!confirm("현재 등록된 단어장, 선생님 리스트, 인쇄 기록을 모두 내보냅니다. (data_loader.js 파일 저장)")) return;
         const jsonStr = JSON.stringify(VOCAB_DATA, null, 4);
         const teachersStr = JSON.stringify(TEACHER_LIST, null, 4);
+        const historyStr = JSON.stringify(VOCAB_HISTORY, null, 4);
 
         const jsContent = `// Voca Builder Data File
 // Exported on ${new Date().toLocaleString()}
@@ -388,6 +610,8 @@ document.addEventListener('DOMContentLoaded', () => {
 const VOCAB_DATA = ${jsonStr};
 
 const VOCAB_TEACHERS_DATA = ${teachersStr};
+
+const VOCAB_HISTORY_DATA = ${historyStr};
 
 function getBooks(){ return Object.keys(VOCAB_DATA).map(k=>({id:k, title:VOCAB_DATA[k].title, maxUnit:VOCAB_DATA[k].units, coverImage:VOCAB_DATA[k].coverImage})); }
 function getUnitData(bookId, unitNum){ const book=VOCAB_DATA[bookId]; if(!book||!book.data[unitNum])return[]; return book.data[unitNum]; }`;
@@ -426,6 +650,23 @@ function getUnitData(bookId, unitNum){ const book=VOCAB_DATA[bookId]; if(!book||
         const d = String(today.getDate()).padStart(2, '0');
         const dateStr = `[${y} - ${m} - ${d}]`;
 
+        // Store Current Exam Context
+        currentExamData = {
+            id: Date.now(),
+            mode: mode,
+            bookTitle: selectedBook.title,
+            bookCover: selectedBook.coverImage,
+            range: { start: uStart, end: uEnd },
+            ctx: {
+                testType,
+                academyName: ACADEMY_NAME,
+                logo: DEFAULT_LOGO,
+                teacherName,
+                dateStr
+            },
+            panels: [] // Will fill below
+        };
+
         let panelsData = [];
         if (mode === 'random') {
             let allWords = [];
@@ -449,13 +690,10 @@ function getUnitData(bookId, unitNum){ const book=VOCAB_DATA[bookId]; if(!book||
             }
         }
 
-        const ctx = {
-            testType,
-            academyName: ACADEMY_NAME,
-            logo: DEFAULT_LOGO,
-            teacherName,
-            dateStr
-        };
+        // Save panels to history data
+        currentExamData.panels = panelsData;
+
+        const ctx = currentExamData.ctx;
 
         previewArea.innerHTML = '';
 

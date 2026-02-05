@@ -112,6 +112,71 @@
         .del-btn:hover {
             background: #dc2626;
         }
+
+        /* History Item Styles */
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 10px 15px;
+            margin-bottom: 8px;
+            border-radius: 6px;
+        }
+
+        .history-info {
+            flex: 1;
+        }
+
+        .history-info h4 {
+            margin: 0 0 5px 0;
+            font-size: 1rem;
+            color: #334155;
+        }
+
+        .history-meta {
+            font-size: 0.85rem;
+            color: #64748b;
+        }
+
+        .history-actions {
+            display: flex;
+            gap: 5px;
+        }
+
+        .h-btn {
+            padding: 5px 10px;
+            font-size: 0.8rem;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            color: white;
+        }
+
+        .h-print-test {
+            background: #4f46e5;
+        }
+
+        .h-print-ans {
+            background: #f97316;
+        }
+
+        .h-del {
+            background: #ef4444;
+        }
+
+        .h-print-test:hover {
+            background: #4338ca;
+        }
+
+        .h-print-ans:hover {
+            background: #ea580c;
+        }
+
+        .h-del:hover {
+            background: #dc2626;
+        }
     </style>
 </head>
 
@@ -203,6 +268,8 @@
                 <button id="print-answer-btn" class="primary-btn" style="flex:1; background:#f97316;">✅ 정답지 인쇄</button>
             </div>
 
+            <button id="history-btn" class="primary-btn" style="background:#8b5cf6; margin-top:10px;">🕒 인쇄 기록
+                (History)</button>
             <hr style="border:0; border-top:1px dashed #ccc; margin: 20px 0;">
             <button id="export-data-btn" class="primary-btn" style="background:#475569; font-size:0.9em;">💾 데이터 저장
                 (공유용)</button>
@@ -250,6 +317,29 @@
             <div class="modal-actions">
                 <button id="close-teacher-modal-btn" class="cancel-btn">취소</button>
                 <button id="save-teacher-btn" class="primary-btn" style="width: auto; padding: 8px 20px;">저장</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for History -->
+    <div id="history-modal" class="modal-overlay">
+        <div class="modal" style="width: 800px; max-height: 80vh; display: flex; flex-direction: column;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                <h3 style="margin:0;">🕒 인쇄 기록 (History)</h3>
+                <button id="close-history-btn" class="cancel-btn"
+                    style="background:none; border:none; font-size:1.5rem; cursor:pointer;">&times;</button>
+            </div>
+
+            <div style="display:flex; gap:10px; margin-bottom:15px; align-items:center;">
+                <label style="margin:0;">선생님 필터:</label>
+                <select id="history-teacher-filter" style="padding:5px;">
+                    <option value="">전체 보기</option>
+                </select>
+            </div>
+
+            <div id="history-list" style="flex:1; overflow-y:auto; border:1px solid #eee; padding:10px;">
+                <!-- History Items Injected Here -->
+                <div style="text-align:center; color:#999; padding:20px;">저장된 기록이 없습니다.</div>
             </div>
         </div>
     </div>
