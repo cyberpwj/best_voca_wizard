@@ -369,6 +369,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const teacher = item.ctx.teacherName || "선생님 미지정";
             const range = `Unit ${item.range.start} ~ ${item.range.end}`;
+            const comment = item.comment || ""; // Default empty string
 
             const div = document.createElement('div');
             div.className = 'history-item';
@@ -378,6 +379,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="history-meta">
                         📅 ${dateStr} | 👨‍🏫 ${teacher} | 🎲 Random (${item.ctx.testType})
                     </div>
+                </div>
+                <div class="history-comment" style="flex: 1; margin: 0 15px;">
+                    <input type="text" class="h-comment-input" value="${comment}" placeholder="코멘트 (예: A반)" 
+                           style="width: 100%; padding: 6px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.9em;">
                 </div>
                 <div class="history-actions">
                     <button class="h-btn h-print-test">📄 시험지</button>
@@ -390,6 +395,17 @@ document.addEventListener('DOMContentLoaded', () => {
             div.querySelector('.h-print-test').addEventListener('click', () => loadAndPrint(item, 'test'));
             div.querySelector('.h-print-ans').addEventListener('click', () => loadAndPrint(item, 'answer'));
             div.querySelector('.h-del').addEventListener('click', () => deleteHistoryItem(item.id));
+
+            // Comment Auto-Save event
+            const commentInput = div.querySelector('.h-comment-input');
+            commentInput.addEventListener('change', (e) => {
+                const newComment = e.target.value;
+                item.comment = newComment;
+                saveHistoryData();
+                // Optional: visual feedback
+                e.target.style.borderColor = "#4ade80"; // Turn green briefly
+                setTimeout(() => e.target.style.borderColor = "#ddd", 1000);
+            });
 
             historyList.appendChild(div);
         });
