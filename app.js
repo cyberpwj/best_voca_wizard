@@ -1,7 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
     // === CONFIG ===
-    const SLOTS_PER_PANEL = 40;
-    const COL_SIZE = 20;
     const ACADEMY_NAME = "BestEdu English";
     const DEFAULT_LOGO = "./images/best_logo.png";
 
@@ -683,8 +681,15 @@ function getUnitData(bookId, unitNum){ const book=VOCAB_DATA[bookId]; if(!book||
             panels: [] // Will fill below
         };
 
+        let defaultSlots = 40;
+        const sampleUnit = getUnitData(bookId, uStart);
+        if (sampleUnit && sampleUnit.length > 0) {
+            defaultSlots = sampleUnit.length;
+        }
+
         let panelsData = [];
         if (mode === 'random') {
+            let randomSlots = 40;
             let allWords = [];
             for (let u = uStart; u <= uEnd; u++) allWords = allWords.concat(getUnitData(bookId, u));
 
@@ -693,16 +698,21 @@ function getUnitData(bookId, unitNum){ const book=VOCAB_DATA[bookId]; if(!book||
 
             const limit = parseInt(randomCountInput.value) || 80;
             allWords = allWords.slice(0, limit);
-            for (let i = 0; i < allWords.length; i += SLOTS_PER_PANEL) {
+            for (let i = 0; i < allWords.length; i += randomSlots) {
                 panelsData.push({
-                    title: `${selectedBook.title} Random Part ${(i / SLOTS_PER_PANEL) + 1}`,
-                    words: allWords.slice(i, i + SLOTS_PER_PANEL)
+                    title: `${selectedBook.title} Random Part ${Math.floor(i / randomSlots) + 1}`,
+                    words: allWords.slice(i, i + randomSlots),
+                    slots: randomSlots
                 });
             }
         } else {
             // RANGE MODE
             for (let u = uStart; u <= uEnd; u++) {
-                panelsData.push({ title: `${selectedBook.title} Unit ${u}`, words: getUnitData(bookId, u) });
+                panelsData.push({ 
+                    title: `${selectedBook.title} Unit ${u}`, 
+                    words: getUnitData(bookId, u),
+                    slots: defaultSlots
+                });
             }
         }
 
@@ -803,12 +813,16 @@ function getUnitData(bookId, unitNum){ const book=VOCAB_DATA[bookId]; if(!book||
             </div>
         `;
 
+        let totalSlots = data.slots || (data.words ? data.words.length : 40);
+        if (totalSlots === 0) totalSlots = 40;
+        let colSize = Math.ceil(totalSlots / 2);
+
         let bodyHtml = `<div class="panel-body">`;
         bodyHtml += `<div class="panel-sub-col">`;
-        for (let i = 0; i < COL_SIZE; i++) bodyHtml += createItemHtml(i, data.words[i], options);
+        for (let i = 0; i < colSize; i++) bodyHtml += createItemHtml(i, data.words && data.words[i], options);
         bodyHtml += `</div>`;
         bodyHtml += `<div class="panel-sub-col" style="border-left: 2px solid #0f172a; padding-left: 3mm; margin-left: 2mm;">`;
-        for (let i = COL_SIZE; i < SLOTS_PER_PANEL; i++) bodyHtml += createItemHtml(i, data.words[i], options);
+        for (let i = colSize; i < totalSlots; i++) bodyHtml += createItemHtml(i, data.words && data.words[i], options);
         bodyHtml += `</div></div>`;
 
         const footerHtml = `<div class="panel-footer">${options.academyName}</div>`;
